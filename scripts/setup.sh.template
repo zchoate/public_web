@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# Can be used as a Linode StackScript
+#
+# Install docker and docker-compose
+sudo apt -q update
+sudo apt install -q -y docker.io docker-compose git
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Enable UFW and allow SSH, HTTP and HTTPS
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw enable && sudo ufw reload
+
+# Add user
+adduser web --home /home/web --uid 1000 --disabled-password --systemctl
+
+cd /home/web
+
+# Pull down the repo
+git clone ${REPO_URL}
+
+echo "ACME_EMAIL=${ACME_EMAIL}" > ./public_web/docker-compose/.env
+
+# Add directory for LE
+mkdir /home/web/public_web/.letsencrypt
+
+# Make sure permissions are good
+chown -R web /home/web
