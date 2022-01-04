@@ -8,8 +8,10 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - /home/web/public_web/.letsencrypt:/letsencrypt
+            - /home/web/public_web/docker-compose/traefik.yml:/config.yml:ro
         command:
             - --providers.docker=true
+            - --providers.file.filename=/config.yml
             - --entrypoints.web.address=:80
             - --entrypoints.websecure.address=:443
             - --certificatesresolvers.cn.acme.tlschallenge=true
