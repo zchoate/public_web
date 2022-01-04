@@ -20,6 +20,8 @@ services:
         ports:
             - 80:80
             - 443:443
+        labels:
+            - traefik.http.middlewares.devblog-auth.users=dev:${DEV_PASSWORD}
 
     blog:
         image: ghcr.io/zchoate/blog:main
@@ -34,3 +36,18 @@ services:
             - traefik.http.middlewares.blog-redirect.redirectscheme.scheme=https
             - traefik.http.middlewares.blog-redirect.redirectscheme.permanent=true
             - traefik.http.routers.blog.middlewares=blog-redirect@docker
+    
+    dev_blog:
+        image: ghcr.io/zchoate/blog:dev
+        container_name: dev_blog
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.devblog.rule=Host(`dev.blog.choate.network`)
+            - traefik.http.routers.devblog.entrypoints=web
+            - traefik.http.routers.devblogtls.rule=Host(`dev.blog.choate.network`)
+            - traefik.http.routers.devblogtls.entrypoints=websecure
+            - traefik.http.routers.devblogtls.tls.certresolver=cn
+            - traefik.http.middlewares.devblog-redirect.redirectscheme.scheme=https
+            - traefik.http.middlewares.devblog-redirect.redirectscheme.permanent=true
+            - traefik.http.routers.devblog.middlewares=devblog-redirect@docker
+            - traefik.http.routers.devblogtls.middlewares=devblog-auth@docker
